@@ -42,10 +42,36 @@
         .top-nav {
             background: var(--navy-dark);
             border-bottom: 1px solid var(--border);
-            padding: 12px 20px;
+            padding: 10px 20px;
             display: flex;
-            justify-content: center;
-            gap: 30px;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(21, 42, 69, 0.95);
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .nav-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
             flex-wrap: wrap;
         }
         
@@ -706,10 +732,15 @@
 </head>
 <body>
     <nav class="top-nav">
-        <a href="https://mn06watch.substack.com" class="nav-link">MN-06 Watch</a>
-        <a href="https://mn06watch.github.io/emmer-vote-tracker/" class="nav-link">Vote Tracker</a>
-        <a href="./" class="nav-link active">Tweet Archive</a>
-        <a href="https://mn06watch.substack.com" class="nav-link">Subscribe</a>
+        <a href="https://mn06watch.substack.com" class="nav-brand">
+            <img src="MN06Watch_Logo.png" alt="MN-06 Watch" class="nav-logo">
+            <span>MN-06 Watch</span>
+        </a>
+        <div class="nav-links">
+            <a href="https://mn06watch.github.io/emmer-vote-tracker/" class="nav-link">Vote Tracker</a>
+            <a href="./" class="nav-link active">Tweet Archive</a>
+            <a href="https://mn06watch.substack.com/subscribe" class="nav-link">Subscribe</a>
+        </div>
     </nav>
 
     <div class="container">
@@ -826,12 +857,12 @@
         <div class="cta-box">
             <h3>Want Analysis, Not Just Data?</h3>
             <p>Get daily summaries, #RhetoricVsReality deep dives, and contradiction alerts.</p>
-            <a href="https://mn06watch.substack.com" class="cta-btn">Subscribe to MN-06 Watch</a>
+            <a href="https://mn06watch.substack.com/subscribe" class="cta-btn">Subscribe to MN-06 Watch</a>
         </div>
         
         <footer>
             <p>Archive spans 2017-2026 across @GOPMajorityWhip, @tomemmer, and @RepTomEmmer</p>
-            <p style="margin-top: 8px;"><a href="https://mn06watch.github.io/emmer-vote-tracker/">Vote Tracker</a> · <a href="https://mn06watch.substack.com">Subscribe</a> · <a href="https://twitter.com/mn06watch">Twitter</a></p>
+            <p style="margin-top: 8px;"><a href="https://mn06watch.github.io/emmer-vote-tracker/">Vote Tracker</a> · <a href="https://mn06watch.substack.com/subscribe">Subscribe</a> · <a href="https://twitter.com/mn06watch">Twitter</a></p>
             <p style="margin-top: 10px;">© 2025 MN-06 Watch. Independent accountability journalism.</p>
         </footer>
     </div>
