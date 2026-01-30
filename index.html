@@ -35,6 +35,62 @@
             line-height: 1.6;
         }
         
+        /* Top Navigation */
+        .top-nav {
+            background: var(--navy-dark);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(21, 42, 69, 0.95);
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .nav-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--navy);
+        }
+        
+        .nav-link.active {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -150,6 +206,14 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .filter-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-right: 5px;
         }
         
         .filter-btn {
@@ -474,6 +538,18 @@
     </style>
 </head>
 <body>
+    <nav class="top-nav">
+        <a href="https://mn06watch.substack.com" class="nav-brand">
+            <img src="MN06Watch_Logo.png" alt="MN-06 Watch" class="nav-logo">
+            <span>MN-06 Watch</span>
+        </a>
+        <div class="nav-links">
+            <a href="./" class="nav-link active">Vote Tracker</a>
+            <a href="https://mn06watch.github.io/emmer-vote-tracker/tweets/" class="nav-link">Tweet Archive</a>
+            <a href="https://mn06watch.substack.com/subscribe" class="nav-link">Subscribe</a>
+        </div>
+    </nav>
+
     <div class="container">
         <header>
             <img src="MN06Watch_Logo.png" alt="MN-06 Watch Logo" class="logo-img">
@@ -506,12 +582,16 @@
                 <button onclick="performSearch()">Search</button>
             </div>
             <div class="filters">
-                <button class="filter-btn active" data-filter="all">All Votes</button>
-                <button class="filter-btn" data-filter="yea">Yea Votes</button>
-                <button class="filter-btn" data-filter="nay">Nay Votes</button>
-                <button class="filter-btn" data-filter="missed">Missed Votes</button>
-                <button class="filter-btn" data-filter="against">Against Party</button>
-                <button class="filter-btn" data-filter="mn">MN Relevant</button>
+                <span class="filter-label">Vote type:</span>
+                <button class="filter-btn active" data-filter="vote" data-value="all">All</button>
+                <button class="filter-btn" data-filter="vote" data-value="yea">Yea</button>
+                <button class="filter-btn" data-filter="vote" data-value="nay">Nay</button>
+                <button class="filter-btn" data-filter="vote" data-value="missed">Missed</button>
+            </div>
+            <div class="filters">
+                <span class="filter-label">Tags:</span>
+                <button class="filter-btn toggle-btn" data-filter="against">Against Party</button>
+                <button class="filter-btn toggle-btn" data-filter="mn">MN Relevant</button>
             </div>
         </div>
         
@@ -537,12 +617,13 @@
         <div class="cta-box">
             <h3>Want Deeper Analysis?</h3>
             <p>Get weekly reports, contradiction alerts, and exclusive deep dives on Emmer's record.</p>
-            <a href="https://mn06watch.substack.com" class="cta-btn">Subscribe to MN-06 Watch</a>
+            <a href="https://mn06watch.substack.com/subscribe" class="cta-btn">Subscribe to MN-06 Watch</a>
         </div>
         
         <footer>
             <p>Data sourced from official House roll call votes (2015-2025)</p>
             <p>An <a href="https://mn06watch.substack.com">MN-06 Watch</a> accountability project</p>
+            <p style="margin-top: 8px;"><a href="https://mn06watch.github.io/emmer-vote-tracker/tweets/">Tweet Archive</a> · <a href="https://mn06watch.substack.com/subscribe">Subscribe</a> · <a href="https://twitter.com/mn06watch">Twitter</a></p>
             <p style="margin-top: 10px;">© 2025 MN-06 Watch. Independent accountability journalism.</p>
         </footer>
     </div>
@@ -552,7 +633,8 @@
         let filteredVotes = [];
         let displayedCount = 0;
         const BATCH_SIZE = 25;
-        let currentFilter = 'all';
+        let currentVoteFilter = 'all';
+        let activeToggles = new Set();
         
         // Load data
         async function loadData() {
@@ -585,12 +667,14 @@
             
             // Filter votes
             filteredVotes = allVotes.filter(vote => {
-                // Apply category filter
-                if (currentFilter === 'yea' && !['Yea', 'Aye', 'Yes'].includes(vote.vote)) return false;
-                if (currentFilter === 'nay' && !['Nay', 'No'].includes(vote.vote)) return false;
-                if (currentFilter === 'missed' && !vote.missed) return false;
-                if (currentFilter === 'against' && !vote.against_party) return false;
-                if (currentFilter === 'mn' && !vote.mn_relevant) return false;
+                // Apply vote type filter
+                if (currentVoteFilter === 'yea' && !['Yea', 'Aye', 'Yes'].includes(vote.vote)) return false;
+                if (currentVoteFilter === 'nay' && !['Nay', 'No'].includes(vote.vote)) return false;
+                if (currentVoteFilter === 'missed' && !vote.missed) return false;
+                
+                // Apply toggle filters (AND logic - must match all active toggles)
+                if (activeToggles.has('against') && !vote.against_party) return false;
+                if (activeToggles.has('mn') && !vote.mn_relevant) return false;
                 
                 // Apply search query
                 if (query) {
@@ -725,12 +809,27 @@
             btn.textContent = card.classList.contains('expanded') ? 'Hide summary' : 'Show bill summary';
         }
         
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        // Vote type filter buttons (single select)
+        document.querySelectorAll('.filter-btn[data-filter="vote"]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.filter-btn[data-filter="vote"]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
+                currentVoteFilter = btn.dataset.value;
+                performSearch();
+            });
+        });
+        
+        // Toggle filter buttons (multi-select)
+        document.querySelectorAll('.filter-btn.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                if (activeToggles.has(filter)) {
+                    activeToggles.delete(filter);
+                    btn.classList.remove('active');
+                } else {
+                    activeToggles.add(filter);
+                    btn.classList.add('active');
+                }
                 performSearch();
             });
         });
