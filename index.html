@@ -92,9 +92,146 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+        }
+        
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .dashboard-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        .big-number-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .topic-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .topic-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .topic-bar-label {
+            width: 100px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .topic-bar-track {
+            flex: 1;
+            height: 18px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .topic-bar-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--navy-dark);
+            min-width: 25px;
+        }
+        
+        .loyalty-meter {
+            margin-top: 10px;
+        }
+        
+        .meter-track-loyalty {
+            height: 24px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .meter-fill-loyalty {
+            height: 100%;
+            background: linear-gradient(to right, var(--gold), #22c55e);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .against-party-info {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .against-party-info span {
+            color: var(--gold);
+            font-weight: 600;
         }
         
         header {
@@ -546,6 +683,7 @@
         <div class="nav-links">
             <a href="./" class="nav-link active">Vote Tracker</a>
             <a href="https://mn06watch.github.io/emmer-vote-tracker/tweets/" class="nav-link">Tweet Archive</a>
+            <a href="https://mn06watch.github.io/emmer-vote-tracker/transcripts/" class="nav-link">Transcripts</a>
             <a href="https://mn06watch.substack.com/subscribe" class="nav-link">Subscribe</a>
         </div>
     </nav>
@@ -557,22 +695,51 @@
             <div class="tagline">Receipts, Not Rage. Tracking Rep. Tom Emmer's Voting Record.</div>
         </header>
         
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-number" id="total-votes">--</div>
-                <div class="stat-label">Total Votes</div>
+        <div class="dashboard">
+            <div class="dashboard-card">
+                <h3>Filtered Results</h3>
+                <div class="big-number" id="total-votes">--</div>
+                <div class="big-number-label">Votes Shown</div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value" id="yea-count">--</div>
+                        <div class="stat-label">Yea</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="nay-count">--</div>
+                        <div class="stat-label">Nay</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="missed-votes">--</div>
+                        <div class="stat-label">Missed</div>
+                    </div>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-number" id="missed-votes">--</div>
-                <div class="stat-label">Missed Votes</div>
+            
+            <div class="dashboard-card">
+                <h3>Top Policy Areas</h3>
+                <div class="topic-bars" id="topic-bars">
+                    <!-- Filled by JS -->
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-number" id="against-party">--</div>
-                <div class="stat-label">Against Party</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number" id="years-tracked">--</div>
-                <div class="stat-label">Years Tracked</div>
+            
+            <div class="dashboard-card">
+                <h3>Party Loyalty</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">
+                    <span id="loyalty-pct">--</span> voted with party
+                </p>
+                <div class="loyalty-meter">
+                    <div class="meter-track-loyalty">
+                        <div class="meter-fill-loyalty" id="loyalty-fill" style="width: 95%;"></div>
+                    </div>
+                    <div class="meter-labels">
+                        <span>Independent</span>
+                        <span>Party Line</span>
+                    </div>
+                </div>
+                <div class="against-party-info" id="against-party-info">
+                    <span id="against-party">--</span> votes against party in current results
+                </div>
             </div>
         </div>
         
@@ -592,6 +759,7 @@
                 <span class="filter-label">Tags:</span>
                 <button class="filter-btn toggle-btn" data-filter="against">Against Party</button>
                 <button class="filter-btn toggle-btn" data-filter="mn">MN Relevant</button>
+                <button class="filter-btn toggle-btn active" data-filter="passage">Passage Votes Only</button>
             </div>
         </div>
         
@@ -634,22 +802,36 @@
         let displayedCount = 0;
         const BATCH_SIZE = 25;
         let currentVoteFilter = 'all';
-        let activeToggles = new Set();
+        let activeToggles = new Set(['passage']); // Default to passage votes only
+        
+        // Procedural vote types to filter out
+        const PROCEDURAL_QUESTIONS = [
+            'On Motion to Recommit',
+            'On Agreeing to the Amendment',
+            'On Motion to Suspend the Rules and Pass',
+            'On Ordering the Previous Question',
+            'On Motion to Commit with Instructions',
+            'Table Motion to Refer',
+            'On Approving the Journal',
+            'Election of the Speaker',
+            'Call by States',
+            'On Agreeing to the Resolution'
+        ];
+        
+        function isPassageVote(vote) {
+            const question = vote.question || '';
+            // Include "On Passage" and exclude procedural votes
+            if (question === 'On Passage') return true;
+            if (PROCEDURAL_QUESTIONS.some(pq => question.includes(pq))) return false;
+            // Include other substantive votes
+            return !question.includes('Amendment') && !question.includes('Recommit') && !question.includes('Journal');
+        }
         
         // Load data
         async function loadData() {
             try {
                 const response = await fetch('votes_data.json');
                 allVotes = await response.json();
-                
-                // Update stats
-                document.getElementById('total-votes').textContent = allVotes.length.toLocaleString();
-                document.getElementById('missed-votes').textContent = allVotes.filter(v => v.missed).length;
-                document.getElementById('against-party').textContent = allVotes.filter(v => v.against_party).length;
-                
-                const years = [...new Set(allVotes.map(v => v.year))];
-                document.getElementById('years-tracked').textContent = years.length;
-                
                 performSearch();
             } catch (error) {
                 document.getElementById('results').innerHTML = `
@@ -658,6 +840,57 @@
                         <p>Please try refreshing the page.</p>
                     </div>
                 `;
+            }
+        }
+        
+        function updateDashboard(votes) {
+            // Basic counts
+            document.getElementById('total-votes').textContent = votes.length.toLocaleString();
+            
+            const yeaCount = votes.filter(v => ['Yea', 'Aye', 'Yes'].includes(v.vote)).length;
+            const nayCount = votes.filter(v => ['Nay', 'No'].includes(v.vote)).length;
+            const missedCount = votes.filter(v => v.missed).length;
+            const againstCount = votes.filter(v => v.against_party).length;
+            
+            document.getElementById('yea-count').textContent = yeaCount.toLocaleString();
+            document.getElementById('nay-count').textContent = nayCount.toLocaleString();
+            document.getElementById('missed-votes').textContent = missedCount.toLocaleString();
+            document.getElementById('against-party').textContent = againstCount.toLocaleString();
+            
+            // Party loyalty calculation
+            const nonMissedVotes = votes.filter(v => !v.missed).length;
+            const loyaltyPct = nonMissedVotes > 0 ? ((nonMissedVotes - againstCount) / nonMissedVotes * 100) : 0;
+            document.getElementById('loyalty-pct').textContent = loyaltyPct.toFixed(1) + '%';
+            document.getElementById('loyalty-fill').style.width = loyaltyPct + '%';
+            
+            // Policy area breakdown
+            const policyCounts = {};
+            votes.forEach(v => {
+                const area = v.policy_area || 'Other';
+                policyCounts[area] = (policyCounts[area] || 0) + 1;
+            });
+            
+            const sortedPolicies = Object.entries(policyCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const maxCount = sortedPolicies[0] ? sortedPolicies[0][1] : 1;
+            
+            const topicBars = document.getElementById('topic-bars');
+            if (sortedPolicies.length === 0) {
+                topicBars.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">No policy areas in current results</p>';
+            } else {
+                topicBars.innerHTML = sortedPolicies.map(([policy, count]) => {
+                    const pct = (count / maxCount) * 100;
+                    return `
+                        <div class="topic-bar">
+                            <span class="topic-bar-label">${policy}</span>
+                            <div class="topic-bar-track">
+                                <div class="topic-bar-fill" style="width: ${pct}%">${count}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
         }
         
@@ -675,6 +908,7 @@
                 // Apply toggle filters (AND logic - must match all active toggles)
                 if (activeToggles.has('against') && !vote.against_party) return false;
                 if (activeToggles.has('mn') && !vote.mn_relevant) return false;
+                if (activeToggles.has('passage') && !isPassageVote(vote)) return false;
                 
                 // Apply search query
                 if (query) {
@@ -703,6 +937,10 @@
             // Reset and display
             displayedCount = 0;
             document.getElementById('results').innerHTML = '';
+            
+            // Update dashboard with filtered results
+            updateDashboard(filteredVotes);
+            
             loadMore();
             
             // Update count
