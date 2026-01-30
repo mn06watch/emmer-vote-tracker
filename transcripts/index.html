@@ -733,7 +733,7 @@
         
         function createTranscriptCard(transcript) {
             const networkType = getNetworkType(transcript.network);
-            const formattedDate = new Date(transcript.date).toLocaleDateString('en-US', {
+            const formattedDate = new Date(transcript.date + 'T12:00:00').toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
