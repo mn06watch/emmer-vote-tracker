@@ -902,6 +902,45 @@
         // Set default end date to today
         document.getElementById('date-to').valueAsDate = new Date();
         
+        // Common suffixes to strip for stemmed search
+        const SUFFIXES = ['ing', 'tion', 'sion', 'ment', 'ness', 'ity', 'ous', 'ive', 'ian', 'ans', 'ers', 'ies', 'es', 'ed', 'ly', 's'];
+        
+        // Get search stems from a query
+        function getSearchStems(query) {
+            const terms = [query]; // Always include original
+            const lower = query.toLowerCase();
+            
+            // Try removing common suffixes to get root
+            for (const suffix of SUFFIXES) {
+                if (lower.endsWith(suffix) && lower.length > suffix.length + 2) {
+                    const stem = lower.slice(0, -suffix.length);
+                    if (stem.length >= 3 && !terms.includes(stem)) {
+                        terms.push(stem);
+                    }
+                }
+            }
+            
+            // Also add common variations of the query
+            // If query ends in 'y', try 'ies' (policy -> policies)
+            if (lower.endsWith('y')) {
+                terms.push(lower.slice(0, -1) + 'ies');
+                terms.push(lower.slice(0, -1) + 'ian');
+            }
+            // If query ends in 'a', try 'an', 'ans' (Somalia -> Somalian, Somalians)
+            if (lower.endsWith('a')) {
+                terms.push(lower + 'n');
+                terms.push(lower + 'ns');
+                terms.push(lower.slice(0, -1) + 'ian');
+                terms.push(lower.slice(0, -1) + 'ians');
+            }
+            // If query ends in consonant, try adding 's', 'ing', 'ed'
+            if (!lower.endsWith('s')) {
+                terms.push(lower + 's');
+            }
+            
+            return terms;
+        }
+        
         // Check if tweet contains escalation language
         function hasEscalation(text) {
             if (!text) return false;
@@ -1114,7 +1153,7 @@
                 if (dateFrom && tweetDate < dateFrom) return false;
                 if (dateTo && tweetDate > dateTo) return false;
                 
-                // Apply search query
+                // Apply search query with stemming
                 if (query) {
                     const searchText = [
                         tweet.text,
@@ -1122,7 +1161,11 @@
                         ...(tweet.topics || [])
                     ].filter(Boolean).join(' ').toLowerCase();
                     
-                    return searchText.includes(query);
+                    // Get word stems to search for
+                    const searchTerms = getSearchStems(query);
+                    
+                    // Check if any stem matches
+                    return searchTerms.some(term => searchText.includes(term));
                 }
                 
                 return true;
