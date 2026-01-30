@@ -753,8 +753,8 @@
             const hasPdf = transcript.filename !== null;
             const pendingBadge = !hasPdf ? '<span class="pending-badge">PDF Pending</span>' : '';
             
-            const downloadBtn = hasPdf 
-                ? `<a href="${transcript.filename}" class="action-btn primary" download>Download PDF</a>`
+            const viewBtn = hasPdf 
+                ? `<a href="${transcript.filename}" class="action-btn primary" target="_blank">View Transcript</a>`
                 : `<button class="action-btn primary" disabled>PDF Coming Soon</button>`;
             
             const videoBtn = transcript.video_url 
@@ -791,7 +791,7 @@
                     ${topics ? `<div class="transcript-topics">${topics}</div>` : ''}
                     
                     <div class="transcript-actions">
-                        ${downloadBtn}
+                        ${viewBtn}
                         ${videoBtn}
                     </div>
                 </div>
