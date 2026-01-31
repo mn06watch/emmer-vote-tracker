@@ -551,6 +551,106 @@
                 text-align: center;
             }
         }
+        
+        /* Transcript Viewer Overlay */
+        .transcript-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            z-index: 2000;
+            flex-direction: column;
+        }
+        
+        .viewer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: var(--navy-dark);
+            border-bottom: 1px solid var(--border);
+            gap: 20px;
+        }
+        
+        .back-btn {
+            background: var(--navy);
+            color: var(--gold);
+            border: 1px solid var(--gold-dark);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        
+        .back-btn:hover {
+            background: var(--navy-light);
+        }
+        
+        .viewer-info {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+        
+        .viewer-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .viewer-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .download-btn {
+            background: var(--gold);
+            color: var(--navy-dark);
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        
+        .download-btn:hover {
+            background: var(--gold-light);
+        }
+        
+        .pdf-frame {
+            flex: 1;
+            border: none;
+            background: #fff;
+        }
+        
+        @media (max-width: 600px) {
+            .viewer-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .viewer-info {
+                order: -1;
+                width: 100%;
+                text-align: left;
+            }
+            
+            .back-btn, .download-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -755,7 +855,7 @@
             const pendingBadge = !hasPdf ? '<span class="pending-badge">PDF Pending</span>' : '';
             
             const viewBtn = hasPdf 
-                ? `<a href="${transcript.filename}" class="action-btn primary" target="_blank">View Transcript</a>`
+                ? `<a href="javascript:void(0)" onclick="viewTranscript('${transcript.filename}', '${transcript.title.replace(/'/g, "\\'")}', '${transcript.show.replace(/'/g, "\\'")}', '${formattedDate}')" class="action-btn primary">View Transcript</a>`
                 : `<button class="action-btn primary" disabled>PDF Coming Soon</button>`;
             
             const videoBtn = transcript.video_url 
@@ -814,8 +914,41 @@
             if (e.key === 'Enter') performSearch();
         });
         
+        // Transcript viewer functions
+        function viewTranscript(filename, title, show, date) {
+            document.getElementById('viewer-title').textContent = title;
+            document.getElementById('viewer-meta').textContent = `${show} • ${date}`;
+            document.getElementById('pdf-frame').src = filename;
+            document.getElementById('transcript-viewer').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeViewer() {
+            document.getElementById('transcript-viewer').style.display = 'none';
+            document.getElementById('pdf-frame').src = '';
+            document.body.style.overflow = '';
+        }
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
+        });
+        
         // Load data on page load
         loadData();
     </script>
+    
+    <!-- Transcript Viewer Overlay -->
+    <div id="transcript-viewer" class="transcript-viewer">
+        <div class="viewer-header">
+            <button onclick="closeViewer()" class="back-btn">← Back to Transcripts</button>
+            <div class="viewer-info">
+                <div id="viewer-title" class="viewer-title"></div>
+                <div id="viewer-meta" class="viewer-meta"></div>
+            </div>
+            <a id="viewer-download" href="#" class="download-btn" onclick="this.href=document.getElementById('pdf-frame').src" download>Download PDF</a>
+        </div>
+        <iframe id="pdf-frame" class="pdf-frame"></iframe>
+    </div>
 </body>
 </html>
