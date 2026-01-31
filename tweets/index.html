@@ -896,7 +896,27 @@
             'war on', 'assault on',
             'nightmare', 'disaster', 'disastrous',
             'shameful', 'disgrace', 'disgraceful',
-            'outrage', 'outrageous'
+            'outrage', 'outrageous',
+            // Additional inflammatory terms
+            'thug', 'thugs',
+            'punk', 'punks',
+            'lawless', 'lawlessness',
+            'riot', 'rioter', 'rioters', 'rioting',
+            'agitator', 'agitators',
+            'antifa',
+            'anarchist', 'anarchists', 'anarchy',
+            'defund',
+            'open borders',
+            'criminal', 'criminals',
+            'rapist', 'murderer', 'pedophile',
+            'traitor', 'treason', 'treasonous',
+            'enemy', 'enemies',
+            'hate', 'hatred', 'hateful',
+            'sick', 'sickness',
+            'insane', 'insanity', 'crazy',
+            'unhinged',
+            'coup',
+            'weaponize', 'weaponized', 'weaponization'
         ];
         
         // Set default end date to today
@@ -1167,7 +1187,7 @@
                 if (dateFrom && tweetDate < dateFrom) return false;
                 if (dateTo && tweetDate > dateTo) return false;
                 
-                // Apply search query with stemming
+                // Apply search query with stemming and OR logic
                 if (query) {
                     const searchText = [
                         tweet.text,
@@ -1175,11 +1195,14 @@
                         ...(tweet.topics || [])
                     ].filter(Boolean).join(' ').toLowerCase();
                     
-                    // Get word stems to search for
-                    const searchTerms = getSearchStems(query);
+                    // Split query into words and search for ANY match (OR logic)
+                    const queryWords = query.split(/\s+/).filter(w => w.length > 0);
                     
-                    // Check if any stem matches
-                    return searchTerms.some(term => searchText.includes(term));
+                    // For each word, get its stems and check if any match
+                    return queryWords.some(word => {
+                        const stems = getSearchStems(word);
+                        return stems.some(stem => searchText.includes(stem));
+                    });
                 }
                 
                 return true;
