@@ -322,6 +322,25 @@
             background: var(--gold-light);
         }
         
+        .search-mode-toggle {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .search-mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        
+        .search-mode-toggle input[type="radio"] {
+            accent-color: var(--gold);
+        }
+        
         .filters {
             display: flex;
             gap: 8px;
@@ -805,6 +824,10 @@
         <div class="search-section">
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="Search tweets... (immigration, taxes, crime, etc.)">
+                <div class="search-mode-toggle">
+                    <label title="Match ALL words"><input type="radio" name="search-mode" value="and" checked> All words</label>
+                    <label title="Match ANY word"><input type="radio" name="search-mode" value="or"> Any word</label>
+                </div>
                 <button onclick="performSearch()">Search</button>
             </div>
             
@@ -1187,7 +1210,7 @@
                 if (dateFrom && tweetDate < dateFrom) return false;
                 if (dateTo && tweetDate > dateTo) return false;
                 
-                // Apply search query with stemming and OR logic
+                // Apply search query with stemming and AND/OR logic
                 if (query) {
                     const searchText = [
                         tweet.text,
@@ -1195,14 +1218,25 @@
                         ...(tweet.topics || [])
                     ].filter(Boolean).join(' ').toLowerCase();
                     
-                    // Split query into words and search for ANY match (OR logic)
+                    // Get search mode (AND or OR)
+                    const searchMode = document.querySelector('input[name="search-mode"]:checked')?.value || 'and';
+                    
+                    // Split query into words and search
                     const queryWords = query.split(/\s+/).filter(w => w.length > 0);
                     
-                    // For each word, get its stems and check if any match
-                    return queryWords.some(word => {
-                        const stems = getSearchStems(word);
-                        return stems.some(stem => searchText.includes(stem));
-                    });
+                    if (searchMode === 'or') {
+                        // OR: match ANY word
+                        return queryWords.some(word => {
+                            const stems = getSearchStems(word);
+                            return stems.some(stem => searchText.includes(stem));
+                        });
+                    } else {
+                        // AND: match ALL words
+                        return queryWords.every(word => {
+                            const stems = getSearchStems(word);
+                            return stems.some(stem => searchText.includes(stem));
+                        });
+                    }
                 }
                 
                 return true;
