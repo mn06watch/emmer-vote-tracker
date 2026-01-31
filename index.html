@@ -896,42 +896,56 @@
         }
         
         // Common suffixes to strip for stemmed search
-        const SUFFIXES = ['ing', 'tion', 'sion', 'ment', 'ness', 'ity', 'ous', 'ive', 'ian', 'ans', 'ers', 'ies', 'es', 'ed', 'ly', 's'];
+        const SUFFIXES = ['ing', 'tion', 'sion', 'ment', 'ness', 'ity', 'ous', 'ive', 'ians', 'ian', 'ans', 'ers', 'ies', 'ia', 'es', 'ed', 'ly', 'an', 's'];
         
         // Get search stems from a query
         function getSearchStems(query) {
-            const terms = [query]; // Always include original
+            const terms = new Set([query]); // Use Set to avoid duplicates
             const lower = query.toLowerCase();
             
             // Try removing common suffixes to get root
             for (const suffix of SUFFIXES) {
                 if (lower.endsWith(suffix) && lower.length > suffix.length + 2) {
                     const stem = lower.slice(0, -suffix.length);
-                    if (stem.length >= 3 && !terms.includes(stem)) {
-                        terms.push(stem);
+                    if (stem.length >= 3) {
+                        terms.add(stem);
                     }
                 }
             }
             
-            // Also add common variations of the query
-            // If query ends in 'y', try 'ies' (policy -> policies)
-            if (lower.endsWith('y')) {
-                terms.push(lower.slice(0, -1) + 'ies');
-                terms.push(lower.slice(0, -1) + 'ian');
-            }
-            // If query ends in 'a', try 'an', 'ans' (Somalia -> Somalian, Somalians)
-            if (lower.endsWith('a')) {
-                terms.push(lower + 'n');
-                terms.push(lower + 'ns');
-                terms.push(lower.slice(0, -1) + 'ian');
-                terms.push(lower.slice(0, -1) + 'ians');
-            }
-            // If query ends in consonant, try adding 's', 'ing', 'ed'
-            if (!lower.endsWith('s')) {
-                terms.push(lower + 's');
+            // For each term we have, also add common variations
+            const baseTerms = [...terms];
+            for (const term of baseTerms) {
+                // Add 's' plural
+                terms.add(term + 's');
+                
+                // If ends in 'i', try 'ia', 'ian', 'ians' (Somali -> Somalia, Somalian)
+                if (term.endsWith('i')) {
+                    terms.add(term + 'a');
+                    terms.add(term + 'an');
+                    terms.add(term + 'ans');
+                }
+                
+                // If ends in 'a', try 'an', 'ans', stripping 'a' for 'i' form
+                if (term.endsWith('a')) {
+                    terms.add(term + 'n');
+                    terms.add(term + 'ns');
+                    terms.add(term.slice(0, -1) + 'i');
+                    terms.add(term.slice(0, -1) + 'ian');
+                    terms.add(term.slice(0, -1) + 'ians');
+                }
+                
+                // If ends in 'y', try 'ies'
+                if (term.endsWith('y')) {
+                    terms.add(term.slice(0, -1) + 'ies');
+                }
+                
+                // Common verb forms
+                terms.add(term + 'ing');
+                terms.add(term + 'ed');
             }
             
-            return terms;
+            return [...terms];
         }
         
         function performSearch() {
