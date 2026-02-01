@@ -823,7 +823,7 @@
         <!-- Search Section -->
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search tweets... (immigration, taxes, crime, etc.)">
+                <input type="text" id="search-input" placeholder="Search tweets... (use &quot;quotes&quot; for exact phrases)">
                 <div class="search-mode-toggle">
                     <label title="Match ALL words"><input type="radio" name="search-mode" value="and" checked> All words</label>
                     <label title="Match ANY word"><input type="radio" name="search-mode" value="or"> Any word</label>
@@ -888,7 +888,7 @@
             <p>Archive spans 2017-2026 across @GOPMajorityWhip, @tomemmer, and @RepTomEmmer</p>
             <p style="margin-top: 8px;"><a href="https://mn06watch.github.io/emmer-vote-tracker/">Vote Tracker</a> · <a href="https://mn06watch.github.io/emmer-vote-tracker/transcripts/">Transcripts</a> · <a href="https://mn06watch.substack.com/subscribe">Subscribe</a></p>
             <p style="margin-top: 10px;">© 2025 MN-06 Watch. Independent accountability journalism.</p>
-            <p style="margin-top: 8px; font-size: 0.8rem; color: #666;">Tweet archive last updated: January 31, 2026</p>
+            <p style="margin-top: 8px; font-size: 0.8rem; color: #666;">Tweet archive last updated: January 30, 2026</p>
         </footer>
     </div>
     
@@ -1218,25 +1218,45 @@
                         ...(tweet.topics || [])
                     ].filter(Boolean).join(' ').toLowerCase();
                     
-                    // Get search mode (AND or OR)
-                    const searchMode = document.querySelector('input[name="search-mode"]:checked')?.value || 'and';
+                    // Check for exact phrase matching (quoted phrases)
+                    const exactPhrases = [];
+                    const remainingQuery = query.replace(/"([^"]+)"/g, (match, phrase) => {
+                        exactPhrases.push(phrase.toLowerCase());
+                        return '';
+                    }).trim();
                     
-                    // Split query into words and search
-                    const queryWords = query.split(/\s+/).filter(w => w.length > 0);
-                    
-                    if (searchMode === 'or') {
-                        // OR: match ANY word
-                        return queryWords.some(word => {
-                            const stems = getSearchStems(word);
-                            return stems.some(stem => searchText.includes(stem));
-                        });
-                    } else {
-                        // AND: match ALL words
-                        return queryWords.every(word => {
-                            const stems = getSearchStems(word);
-                            return stems.some(stem => searchText.includes(stem));
-                        });
+                    // First check all exact phrases must match
+                    for (const phrase of exactPhrases) {
+                        if (!searchText.includes(phrase)) {
+                            return false;
+                        }
                     }
+                    
+                    // If there's remaining query text, apply AND/OR logic
+                    if (remainingQuery) {
+                        // Get search mode (AND or OR)
+                        const searchMode = document.querySelector('input[name="search-mode"]:checked')?.value || 'and';
+                        
+                        // Split remaining query into words and search
+                        const queryWords = remainingQuery.split(/\s+/).filter(w => w.length > 0);
+                        
+                        if (searchMode === 'or') {
+                            // OR: match ANY word
+                            return queryWords.some(word => {
+                                const stems = getSearchStems(word);
+                                return stems.some(stem => searchText.includes(stem));
+                            });
+                        } else {
+                            // AND: match ALL words
+                            return queryWords.every(word => {
+                                const stems = getSearchStems(word);
+                                return stems.some(stem => searchText.includes(stem));
+                            });
+                        }
+                    }
+                    
+                    // If only exact phrases and they all matched, return true
+                    return true;
                 }
                 
                 return true;
